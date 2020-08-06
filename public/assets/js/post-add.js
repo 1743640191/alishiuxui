@@ -3,8 +3,7 @@ $.ajax({
     type: "get",
     url: "/categories",
     success: function(response) {
-        console.log(response);
-        let html = template('categoryTpl', { data: response })
+        let html = template('categoryTpl', { response })
         $("#category").html(html);
     }
 });
@@ -57,5 +56,62 @@ $("#addForm").on('submit', function() {
     });
 
     // 阻止表单默认行为
+    return false;
+});
+
+// 获取当前浏览器地址栏中的id
+let id = getUrlParams("id");
+// 当前管理员在做文章想详情修改
+if (id != -1) {
+    // 根据id获取文章详情
+    $.ajax({
+        type: "get",
+        url: "/posts/" + id,
+        success: function(response) {
+            $.ajax({
+                type: "get",
+                url: "/categories",
+                success: function(categories) {
+                    response.categories = categories;
+
+                    let html = template('modifyTpl', response);
+
+                    $("#parentBox").html(html);
+                }
+            });
+        }
+    });
+}
+
+// 从浏览器的地址栏中获取参数 传name返回对应值
+function getUrlParams(name) {
+    let paramsAry = location.search.substr(1).split('&');
+    // 循环数据
+    for (let i = 0; i < paramsAry.length; i++) {
+        let tme = paramsAry[i].split("=");
+        if (tme[0] == name) {
+            return tme[1];
+        }
+    }
+    // 没有参数返回 -1
+    return -1;
+};
+
+// 修改信息表单发生提交的时候
+$("#parentBox").on('submit', 'form', function() {
+    // 获取管理员在表单输入的内容
+    let formData = $(this).serialize();
+    // 获取当前文章id
+    let id = $(this).attr("data-id");
+
+    // 发送修改请求
+    $.ajax({
+        type: "put",
+        url: "/posts/" + id,
+        data: formData,
+        success: function(response) {
+            location.href = "/admin/posts.html"
+        }
+    });
     return false;
 });

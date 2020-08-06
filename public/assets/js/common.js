@@ -15,3 +15,10 @@ $("#loginout").on('click', function() {
         })
     }
 });
+
+// 格式化年月日
+function formateDate(date) {
+    // 将时间字符串转为日期对象
+    date = new Date(date);
+    return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+}
